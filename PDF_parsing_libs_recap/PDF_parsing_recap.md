@@ -1,13 +1,13 @@
 # Tested libraries, tools and services
 
-> 0. Default lib __UnstructuredPDFLoader__, provided by __LangChain__
-> 1. lib __PyPDF2__
-> 2. lib __pdfplubmer__
-> 3. lib __PDFMiner.six__
-> 4. lib __PyMuPDF__ + __PyMuPDF(LLM)__
-> 5. lib __Camelot-py__ and __tabula-py__
-> 6. tool __Marker__
-> 7. service __LlamaParse__
+> 0. Default lib `UnstructuredPDFLoader`, provided by `LangChain`
+> 1. lib `PyPDF2`
+> 2. lib `pdfplubmer`
+> 3. lib `PDFMiner.six`
+> 4. lib `PyMuPDF` + `PyMuPDF(LLM)`
+> 5. lib `Camelot-py` and `tabula-py`
+> 6. tool `Marker`
+> 7. service `LlamaParse`
 
 # Short review on PDFs used in testing
 ## 1. simple-text.pdf
@@ -53,7 +53,7 @@
 > Contains text, contains tables and text in diagram formats.
  
 # Short review on each tested lib, tool and service
-## 0. Default lib __UnstructuredPDFLoader__, provided by __LangChain__
+## 0. Default lib `UnstructuredPDFLoader`, provided by `LangChain`
 
 > Pros:
 > - fast
@@ -64,7 +64,7 @@
 > - makes text in table unordered
 > - do NOT support text in columns
 
-## 1. lib __PyPDF2__
+## 1. lib `PyPDF2`
 
 > Pros:
 > - allows image extraction
@@ -79,7 +79,7 @@
 > Strange:
 > do NOT extruct whole PDF in one text object, just do it by pages
 
-## 2. lib __pdfplubmer__
+## 2. lib `pdfplubmer`
 
 > Pros:
 > - fine table extraction in array of arrays
@@ -92,7 +92,7 @@
 > Strange:
 > - extracting block-schemas as strange tables // pretty confusing
 
-## 3. lib __PDFMiner.six__
+## 3. lib `PDFMiner.six`
 
 > Pros:
 > - native API for parsing PDFs
@@ -100,30 +100,30 @@
 > Cons:
 > - you need to hardcode everything here from text extraction to everything like tables
 
-## 4. lib __PyMuPDF__ + __PyMuPDF(LLM)__
+## 4. lib `PyMuPDF` + `PyMuPDF(LLM)`
 
 > Pros:
-> - very similar to **pdfplumber** in parsing tables task
+> - very similar to `pdfplumber` in parsing tables task
 > - fixes problem of two columns text
-> - provides integration with LLM & RAG, also has integration with **LangChain**
+> - provides integration with LLM & RAG, also has integration with `LangChain`
 > - can parse PDFs into Markdown format
 
 > Cons:
 > - strange parsing for some tables
 
-## 5. lib __Camelot-py__ and __tabula-py__
+## 5. lib `Camelot-py` and `tabula-py`
 
 > Pros:
-> - return tables in __Pandas__ format
+> - return tables in `Pandas` format
 > - in clear tables give correct table representations, which might require small fixing
 > - recognize and process right even big tables
 
 > Cons:
 > - sometimes do NOT recognize a table in the right way and leave empty table
-> - struggling with tables without line delimiters, although process them better than __PyMuPDF__
+> - struggling with tables without line delimiters, although process them better than `PyMuPDF`
 > - do not recognize other parts of PDFs like plain text
 
-## 6. tool __Marker__
+## 6. tool `Marker`
 
 > Pros:
 > - Parse even untexteorized PDFs (like photo PDFs or scans) using OCR model
@@ -137,15 +137,31 @@
 > Strange:
 > - do NOT provide Python API for direct use in Python program, but provide console util or allow running this as independent service
 
-## 7. service __LlamaParse__
+## 7. service `LlamaParse`
 
 > Pros:
 > - Simple API
 > - Free scanning of 1000 pages per day, and the next page will cost 0.003 per page
-> - Works similar to __Marker__ tool, but significantly faster
+> - Works similar to `Marker` tool, but significantly faster
 > - Use LLMs for postprocessing, sometimes extract information hidden in text
 
 > Cons:
 > - Have similar issues with quality of parsing.
 > - Have issues with text ordering, especially in multicolumn PDFs.
 > - Have issues with parsing tables on a few pages.
+
+# Table of comparing PDF-parsing tools performance
+
+| tool / quality                                            | text PDFs | scanned PDFs | 1) single column text | 2) two and more columns text                           | 3) table recognition        | 4) Markdown | 5) Performance               | 6) Billing                                     | 7) AI processing                                 |
+|-----------------------------------------------------------|-----------|--------------|-----------------------|--------------------------------------------------------|-----------------------------|-------------|------------------------------|------------------------------------------------|--------------------------------------------------|
+| 0).  lib `UnstructuredPDFLoader`, provided by `LangChain` | +         | N.T.         | +                     | -                                                      | -                           | -           | fast                         | -                                              | -                                                |
+| 1). lib `PyPDF2`                                          | +         | N.T.         | NOT FINE              | -                                                      | -                           | -           | fast                         | -                                              | -                                                |
+| 2). lib `pdfplubmer`                                      | +         | N.T.         | +                     | Pure multicolumn parsing                               | Table -> Array of Arrays    | -           | fast                         | -                                              | -                                                |
+| 3). lib `PDFMiner.six`                                    | +         | N.T.         | HARD TO PARSE         | -                                                      | -                           | -           | fast                         | -                                              | -                                                |
+| 4). lib `PyMuPDF` + `PyMuPDF(LLM)`                        | +         | N.T.         | +                     | ++                                                     | Table -> Markdown           | +           | fast                         | -                                              | -                                                |
+| 5.1). lib `Camelot-py`                                    | +         | N.T.         | NOT EXTRACT TEXT      | NOT EXTRACT TEXT                                       | Table -> pandas.DataFrame() | -           | fast                         | -                                              | -                                                |
+| 5.2). lib `tabula-py`                                     | +         | N.T.         | NOT EXTRACT TEXT      | NOT EXTRACT TEXT                                       | Table -> pandas.DataFrame() | -           | fast                         | -                                              | -                                                |
+| 6). tool `Marker`                                         | +         | + (OCR)      | +                     | ++                                                     | Table -> Markdown           | +           | slow on CPU, moderate on GPU | -                                              | -                                                |
+| 7). service `LlamaParse`                                  | +         | N.T.         | +                     | +- (Struggling with text ordering in multicolumn text) | Table -> Markdown           | +           | extremely fast               | 1000 pages per day - free, and 0.003$ per page | + (allows prompting fro further post processing) |
+
+N.T. == NOT TESTED
